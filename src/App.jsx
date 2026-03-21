@@ -235,7 +235,7 @@ const sc={published:"#34D399",scheduled:"#5B7FD6",draft:"#555",suggested:"#D4A85
 const se={positive:"#34D399",neutral:"#5B7FD6",negative:"#E84848"};
 
 export default function App(){
-  const[ph,sP]=useState("ob");
+  const[ph,sP]=useState("login");
   const[st,sS]=useState(0);
   const[vw,sV]=useState("create");
   const[ff,sF]=useState("Marriott");
@@ -283,7 +283,33 @@ export default function App(){
     {ph==="app"&&bd&&<div style={{display:"flex",alignItems:"center",gap:4}}><span style={{fontFamily:"var(--m)",fontSize:7,color:"var(--t3)",display:"flex",alignItems:"center",gap:3}}><span style={{width:4,height:4,borderRadius:"50%",background:"#34D399"}}/>{pn||bd.n}</span></div>}
   </nav>
 
-  {/* ONBOARDING */}
+  {/* LOGIN */}
+{ph==="login"&&<div style={{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",background:"var(--bg)"}}>
+<div style={{width:380,padding:40,background:"var(--s1)",border:"1px solid var(--b)",borderRadius:12}}>
+<div style={{textAlign:"center",marginBottom:32}}>
+<div style={{width:48,height:48,background:"linear-gradient(135deg,#E85D3A,#FF8C42)",borderRadius:10,display:"inline-flex",alignItems:"center",justifyContent:"center",marginBottom:16}}><span style={{fontFamily:"var(--m)",fontSize:14,fontWeight:700,color:"#fff"}}>TK</span></div>
+<h1 style={{fontFamily:"var(--d)",fontSize:22,fontWeight:800,color:"var(--t1)",marginBottom:4}}>Welcome back</h1>
+<p style={{fontSize:13,color:"var(--t2)"}}>Sign in to your Turnkey account</p>
+</div>
+<div style={{marginBottom:16}}>
+<label style={{display:"block",fontFamily:"var(--m)",fontSize:11,fontWeight:600,color:"var(--t3)",letterSpacing:1,marginBottom:6,textTransform:"uppercase"}}>Email</label>
+<input type="email" placeholder="you@hotel.com" style={{width:"100%",padding:"10px 12px",background:"var(--s2)",border:"1px solid var(--b)",borderRadius:8,color:"var(--t1)",fontSize:14,fontFamily:"var(--m)",outline:"none",boxSizing:"border-box"}}/>
+</div>
+<div style={{marginBottom:24}}>
+<label style={{display:"block",fontFamily:"var(--m)",fontSize:11,fontWeight:600,color:"var(--t3)",letterSpacing:1,marginBottom:6,textTransform:"uppercase"}}>Password</label>
+<input type="password" placeholder="••••••••" style={{width:"100%",padding:"10px 12px",background:"var(--s2)",border:"1px solid var(--b)",borderRadius:8,color:"var(--t1)",fontSize:14,fontFamily:"var(--m)",outline:"none",boxSizing:"border-box"}}/>
+</div>
+<button onClick={()=>sP("ob")} style={{width:"100%",padding:"12px 0",background:"linear-gradient(135deg,#E85D3A,#FF8C42)",border:"none",borderRadius:8,color:"#fff",fontSize:14,fontWeight:700,fontFamily:"var(--m)",cursor:"pointer",marginBottom:16}}>Sign In</button>
+<div style={{textAlign:"center",fontSize:12,color:"var(--t3)"}}>
+<span>Don't have an account? </span><span style={{color:"#E85D3A",cursor:"pointer"}} onClick={()=>sP("ob")}>Get started</span>
+</div>
+<div style={{marginTop:24,paddingTop:20,borderTop:"1px solid var(--b)",textAlign:"center"}}>
+<button onClick={()=>sP("ob")} style={{width:"100%",padding:"10px 0",background:"var(--s2)",border:"1px solid var(--b)",borderRadius:8,color:"var(--t1)",fontSize:13,fontWeight:600,fontFamily:"var(--m)",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:8}}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>Continue with SSO</button>
+</div>
+</div>
+</div>}
+
+{/* ONBOARDING */}
   {ph==="ob"&&<div style={{minHeight:"calc(100vh - 44px)",display:"flex",alignItems:"center",justifyContent:"center",padding:24}}>
   <div style={{width:"100%",maxWidth:st===1?560:420,animation:"su .3s ease"}}>
   {st===0&&<div style={{textAlign:"center"}}>
