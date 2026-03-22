@@ -335,7 +335,7 @@ const handleSignOut=async()=>{await supabase.auth.signOut();sP("login");};
 </div>
 <div style={{marginBottom:8}}>
 <label style={{display:"block",fontFamily:"var(--m)",fontSize:11,fontWeight:600,color:"var(--t3)",letterSpacing:1,marginBottom:6,textTransform:"uppercase"}}>Password</label>
-<input type="password" value={authPass} onChange={e=>setAuthPass(e.target.value)} placeholder="\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022" required minLength={6} style={{width:"100%",padding:"10px 12px",background:"var(--s2)",border:"1px solid var(--b)",borderRadius:8,color:"var(--t1)",fontSize:14,fontFamily:"var(--m)",outline:"none",boxSizing:"border-box"}}/>
+<input type="password" value={authPass} onChange={e=>setAuthPass(e.target.value)} placeholder="Enter password" required minLength={6} style={{width:"100%",padding:"10px 12px",background:"var(--s2)",border:"1px solid var(--b)",borderRadius:8,color:"var(--t1)",fontSize:14,fontFamily:"var(--m)",outline:"none",boxSizing:"border-box"}}/>
 </div>
 {authError&&<div style={{padding:"8px 12px",marginBottom:12,borderRadius:6,fontSize:12,fontFamily:"var(--m)",background:authError.includes("Check your email")?"rgba(52,211,153,0.1)":"rgba(232,93,58,0.1)",color:authError.includes("Check your email")?"#34D399":"#E85D3A",border:authError.includes("Check your email")?"1px solid rgba(52,211,153,0.2)":"1px solid rgba(232,93,58,0.2)"}}>{authError}</div>}
 <button type="submit" style={{width:"100%",padding:"12px 0",background:"linear-gradient(135deg,#E85D3A,#FF8C42)",border:"none",borderRadius:8,color:"#fff",fontSize:14,fontWeight:700,fontFamily:"var(--m)",cursor:"pointer",marginTop:8,marginBottom:16}}>{isSignUp?"Create Account":"Sign In"}</button>
