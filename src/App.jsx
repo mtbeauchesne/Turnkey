@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { supabase } from './supabase.js'
 
 const B=[
   // MARRIOTT — 26 brands
@@ -236,6 +237,37 @@ const se={positive:"#34D399",neutral:"#5B7FD6",negative:"#E84848"};
 
 export default function App(){
   const[ph,sP]=useState("login");
+const[authUser,setAuthUser]=useState(null);
+const[authLoading,setAuthLoading]=useState(true);
+const[authError,setAuthError]=useState("");
+const[isSignUp,setIsSignUp]=useState(false);
+const[authEmail,setAuthEmail]=useState("");
+const[authPass,setAuthPass]=useState("");
+const[authName,setAuthName]=useState("");
+useEffect(()=>{
+supabase.auth.getSession().then(({data:{session}})=>{
+setAuthUser(session?.user??null);
+if(session?.user)sP("ob");
+setAuthLoading(false);
+});
+const{data:{subscription}}=supabase.auth.onAuthStateChange((_event,session)=>{
+setAuthUser(session?.user??null);
+if(session?.user&&ph==="login")sP("ob");
+if(!session?.user)sP("login");
+});
+return()=>subscription.unsubscribe();
+},[]);
+const handleAuth=async(e)=>{
+e.preventDefault();setAuthError("");
+if(isSignUp){
+const{error}=await supabase.auth.signUp({email:authEmail,password:authPass,options:{data:{full_name:authName}}});
+if(error)setAuthError(error.message);
+else setAuthError("Check your email for a confirmation link!");
+}else{
+const{error}=await supabase.auth.signInWithPassword({email:authEmail,password:authPass});
+if(error)setAuthError(error.message);
+}};
+const handleSignOut=async()=>{await supabase.auth.signOut();sP("login");};
   const[st,sS]=useState(0);
   const[vw,sV]=useState("create");
   const[ff,sF]=useState("Marriott");
@@ -281,33 +313,39 @@ export default function App(){
     </div>
     {ph==="app"&&<div style={{display:"flex",gap:1}}>{VW.map(v=>{const bg=v==="inbox"?ib.filter(m=>!m.re).length:v==="compliance"?aq.filter(a=>a.st==="review"||a.st==="flagged").length:0;return(<button key={v} onClick={()=>sV(v)} style={{padding:"4px 10px",border:"none",borderRadius:4,background:vw===v?"rgba(255,255,255,.06)":"transparent",color:vw===v?"var(--t1)":"var(--t3)",fontFamily:"var(--m)",fontSize:7,fontWeight:600,cursor:"pointer",textTransform:"capitalize",position:"relative"}}>{v}{bg>0&&<span style={{position:"absolute",top:-1,right:0,width:10,height:10,borderRadius:5,background:v==="compliance"?"#E84848":ax,fontSize:6,color:"#fff",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:700}}>{bg}</span>}</button>)})}</div>}
     {ph==="app"&&bd&&<div style={{display:"flex",alignItems:"center",gap:4}}><span style={{fontFamily:"var(--m)",fontSize:7,color:"var(--t3)",display:"flex",alignItems:"center",gap:3}}><span style={{width:4,height:4,borderRadius:"50%",background:"#34D399"}}/>{pn||bd.n}</span></div>}
+  {ph==="app"&&<button onClick={handleSignOut} style={{marginLeft:"auto",padding:"4px 10px",background:"transparent",border:"1px solid var(--b)",borderRadius:6,color:"var(--t3)",fontSize:11,fontFamily:"var(--m)",cursor:"pointer",display:"flex",alignItems:"center",gap:4}} title="Sign Out"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg></button>}
   </nav>
 
   {/* LOGIN */}
-{ph==="login"&&<div style={{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",background:"var(--bg)"}}>
+{ph==="login"&&!authLoading&&<div style={{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",background:"var(--bg)"}}>
 <div style={{width:380,padding:40,background:"var(--s1)",border:"1px solid var(--b)",borderRadius:12}}>
 <div style={{textAlign:"center",marginBottom:32}}>
 <div style={{width:48,height:48,background:"linear-gradient(135deg,#E85D3A,#FF8C42)",borderRadius:10,display:"inline-flex",alignItems:"center",justifyContent:"center",marginBottom:16}}><span style={{fontFamily:"var(--m)",fontSize:14,fontWeight:700,color:"#fff"}}>TK</span></div>
-<h1 style={{fontFamily:"var(--d)",fontSize:22,fontWeight:800,color:"var(--t1)",marginBottom:4}}>Welcome back</h1>
-<p style={{fontSize:13,color:"var(--t2)"}}>Sign in to your Turnkey account</p>
+<h1 style={{fontFamily:"var(--d)",fontSize:22,fontWeight:800,color:"var(--t1)",marginBottom:4}}>{isSignUp?"Create account":"Welcome back"}</h1>
+<p style={{fontSize:13,color:"var(--t2)"}}>{isSignUp?"Start your free Turnkey trial":"Sign in to your Turnkey account"}</p>
 </div>
+<form onSubmit={handleAuth}>
+{isSignUp&&<div style={{marginBottom:16}}>
+<label style={{display:"block",fontFamily:"var(--m)",fontSize:11,fontWeight:600,color:"var(--t3)",letterSpacing:1,marginBottom:6,textTransform:"uppercase"}}>Full Name</label>
+<input type="text" value={authName} onChange={e=>setAuthName(e.target.value)} placeholder="Jane Smith" style={{width:"100%",padding:"10px 12px",background:"var(--s2)",border:"1px solid var(--b)",borderRadius:8,color:"var(--t1)",fontSize:14,fontFamily:"var(--m)",outline:"none",boxSizing:"border-box"}}/>
+</div>}
 <div style={{marginBottom:16}}>
 <label style={{display:"block",fontFamily:"var(--m)",fontSize:11,fontWeight:600,color:"var(--t3)",letterSpacing:1,marginBottom:6,textTransform:"uppercase"}}>Email</label>
-<input type="email" placeholder="you@hotel.com" style={{width:"100%",padding:"10px 12px",background:"var(--s2)",border:"1px solid var(--b)",borderRadius:8,color:"var(--t1)",fontSize:14,fontFamily:"var(--m)",outline:"none",boxSizing:"border-box"}}/>
+<input type="email" value={authEmail} onChange={e=>setAuthEmail(e.target.value)} placeholder="you@hotel.com" required style={{width:"100%",padding:"10px 12px",background:"var(--s2)",border:"1px solid var(--b)",borderRadius:8,color:"var(--t1)",fontSize:14,fontFamily:"var(--m)",outline:"none",boxSizing:"border-box"}}/>
 </div>
-<div style={{marginBottom:24}}>
+<div style={{marginBottom:8}}>
 <label style={{display:"block",fontFamily:"var(--m)",fontSize:11,fontWeight:600,color:"var(--t3)",letterSpacing:1,marginBottom:6,textTransform:"uppercase"}}>Password</label>
-<input type="password" placeholder="••••••••" style={{width:"100%",padding:"10px 12px",background:"var(--s2)",border:"1px solid var(--b)",borderRadius:8,color:"var(--t1)",fontSize:14,fontFamily:"var(--m)",outline:"none",boxSizing:"border-box"}}/>
+<input type="password" value={authPass} onChange={e=>setAuthPass(e.target.value)} placeholder="\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022" required minLength={6} style={{width:"100%",padding:"10px 12px",background:"var(--s2)",border:"1px solid var(--b)",borderRadius:8,color:"var(--t1)",fontSize:14,fontFamily:"var(--m)",outline:"none",boxSizing:"border-box"}}/>
 </div>
-<button onClick={()=>sP("ob")} style={{width:"100%",padding:"12px 0",background:"linear-gradient(135deg,#E85D3A,#FF8C42)",border:"none",borderRadius:8,color:"#fff",fontSize:14,fontWeight:700,fontFamily:"var(--m)",cursor:"pointer",marginBottom:16}}>Sign In</button>
+{authError&&<div style={{padding:"8px 12px",marginBottom:12,borderRadius:6,fontSize:12,fontFamily:"var(--m)",background:authError.includes("Check your email")?"rgba(52,211,153,0.1)":"rgba(232,93,58,0.1)",color:authError.includes("Check your email")?"#34D399":"#E85D3A",border:authError.includes("Check your email")?"1px solid rgba(52,211,153,0.2)":"1px solid rgba(232,93,58,0.2)"}}>{authError}</div>}
+<button type="submit" style={{width:"100%",padding:"12px 0",background:"linear-gradient(135deg,#E85D3A,#FF8C42)",border:"none",borderRadius:8,color:"#fff",fontSize:14,fontWeight:700,fontFamily:"var(--m)",cursor:"pointer",marginTop:8,marginBottom:16}}>{isSignUp?"Create Account":"Sign In"}</button>
+</form>
 <div style={{textAlign:"center",fontSize:12,color:"var(--t3)"}}>
-<span>Don't have an account? </span><span style={{color:"#E85D3A",cursor:"pointer"}} onClick={()=>sP("ob")}>Get started</span>
-</div>
-<div style={{marginTop:24,paddingTop:20,borderTop:"1px solid var(--b)",textAlign:"center"}}>
-<button onClick={()=>sP("ob")} style={{width:"100%",padding:"10px 0",background:"var(--s2)",border:"1px solid var(--b)",borderRadius:8,color:"var(--t1)",fontSize:13,fontWeight:600,fontFamily:"var(--m)",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:8}}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>Continue with SSO</button>
+{isSignUp?<><span>Already have an account? </span><span style={{color:"#E85D3A",cursor:"pointer"}} onClick={()=>{setIsSignUp(false);setAuthError("")}}>Sign in</span></>:<><span>Don't have an account? </span><span style={{color:"#E85D3A",cursor:"pointer"}} onClick={()=>{setIsSignUp(true);setAuthError("")}}>Get started</span></>}
 </div>
 </div>
 </div>}
+{authLoading&&ph==="login"&&<div style={{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",background:"var(--bg)"}}><div style={{width:48,height:48,background:"linear-gradient(135deg,#E85D3A,#FF8C42)",borderRadius:10,display:"flex",alignItems:"center",justifyContent:"center",animation:"fi 1s infinite"}}><span style={{fontFamily:"var(--m)",fontSize:14,fontWeight:700,color:"#fff"}}>TK</span></div></div>}
 
 {/* ONBOARDING */}
   {ph==="ob"&&<div style={{minHeight:"calc(100vh - 44px)",display:"flex",alignItems:"center",justifyContent:"center",padding:24}}>
